@@ -15,7 +15,11 @@ export class DatabaseService {
 
   // User Queries
   getUser(username: string): User | null {
-    return this.storage.sql.exec(`SELECT * FROM users WHERE username = ?`, username).one() as User | null;
+    try {
+      return this.storage.sql.exec(`SELECT * FROM users WHERE username = ?`, username).one() as User;
+    } catch {
+      return null;
+    }
   }
   createUser(username: string, totpSecret: string) {
     this.storage.sql.exec(`INSERT INTO users (username, totp_secret) VALUES (?, ?)`, username, totpSecret);
@@ -24,7 +28,11 @@ export class DatabaseService {
     this.storage.sql.exec(`UPDATE users SET telegram_id = ? WHERE username = ?`, telegramId, username);
   }
   getUserByTelegramId(chatId: string): { username: string } | null {
-    return this.storage.sql.exec(`SELECT username FROM users WHERE telegram_id = ?`, chatId).one() as any;
+    try {
+      return this.storage.sql.exec(`SELECT username FROM users WHERE telegram_id = ?`, chatId).one() as any;
+    } catch {
+      return null;
+    }
   }
 
   // Task Queries
@@ -55,13 +63,17 @@ export class DatabaseService {
   }
 
   // Alarm Queries
-  getNextAlarmTask() {
-    return this.storage.sql.exec(`
-      SELECT tasks.deadline FROM tasks JOIN users ON tasks.username = users.username
-      WHERE tasks.status != 'done' AND tasks.notified = 0 AND tasks.deadline IS NOT NULL
-      AND users.telegram_id IS NOT NULL AND users.telegram_id != ''
-      ORDER BY tasks.deadline ASC LIMIT 1
-    `).one();
+  getNextAlarmTask(): { deadline: number } | null {
+    try {
+      return this.storage.sql.exec(`
+        SELECT tasks.deadline FROM tasks JOIN users ON tasks.username = users.username
+        WHERE tasks.status != 'done' AND tasks.notified = 0 AND tasks.deadline IS NOT NULL
+        AND users.telegram_id IS NOT NULL AND users.telegram_id != ''
+        ORDER BY tasks.deadline ASC LIMIT 1
+      `).one() as { deadline: number };
+    } catch {
+      return null;
+    }
   }
   getOverdueTasks(limitTime: number) {
     return this.storage.sql.exec(`

@@ -14,7 +14,7 @@
   "migrations": [
     {
       "tag": "v1",
-      "new_classes": ["KanbanBoard"]
+      "new_sqlite_classes": ["KanbanBoard"]
     }
   ],
   "vars": {
