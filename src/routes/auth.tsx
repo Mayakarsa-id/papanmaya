@@ -28,7 +28,7 @@ authRouter.post('/register/init', async (c) => {
 authRouter.post('/register/verify', async (c) => {
   const { code, pending_token } = await c.req.parseBody();
   try {
-    const decoded = await verify(pending_token as string, c.env.JWT_SECRET) as { username: string, secret: string };
+    const decoded = await verify(pending_token as string, c.env.JWT_SECRET, 'HS256') as { username: string, secret: string };
     const isValid = await verifyTOTP(decoded.secret, code as string);
     if (!isValid) return c.text('Invalid TOTP Code', 401);
 

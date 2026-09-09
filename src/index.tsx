@@ -22,7 +22,7 @@ const authMiddleware = async (c: any, next: any) => {
   const token = getCookie(c, 'auth');
   if (!token) return c.redirect('/auth/login');
   try {
-    const payload = await verify(token, c.env.JWT_SECRET);
+    const payload = await verify(token, c.env.JWT_SECRET, 'HS256');
     c.set('username', payload.username);
     await next();
   } catch (e) {
