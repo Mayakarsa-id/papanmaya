@@ -14,11 +14,14 @@
 </p>
 
 <p align="center">
+  <a href="https://pesan.mayakarsa.web.id/"><img alt="Live Website" src="https://img.shields.io/badge/Live-pesan.mayakarsa.web.id-34D399?style=flat-square&logo=cloudflare&logoColor=white"></a>
   <a href="https://t.me/papanmaya_bot"><img alt="Telegram Bot" src="https://img.shields.io/badge/Telegram-%40papanmaya__bot-26A5E4?style=flat-square&logo=telegram&logoColor=white"></a>
 </p>
 
 <p align="center">
-  <strong>🤖 Try the bot: <a href="https://t.me/papanmaya_bot">https://t.me/papanmaya_bot</a></strong> — link your Chat ID in Settings to receive deadline alerts and use <code>/info</code> / <code>/list</code> anywhere.
+  <strong>🌐 Live Website: <a href="https://pesan.mayakarsa.web.id/">https://pesan.mayakarsa.web.id/</a></strong> &nbsp;•&nbsp;
+  <strong>🤖 Bot: <a href="https://t.me/papanmaya_bot">https://t.me/papanmaya_bot</a></strong><br/>
+  Link your Chat ID in <em>Settings</em> to receive deadline alerts and use <code>/info</code> / <code>/list</code> anywhere.
 </p>
 
 <p align="center">
@@ -242,9 +245,17 @@ All protected routes redirect to `/auth/login` if `auth` missing/invalid.
 
 ---
 
+## Live Demo
+
+**Website:** **[https://pesan.mayakarsa.web.id/](https://pesan.mayakarsa.web.id/)** — hosted instance, ready to use. Create an account, scan QR, and start organizing.
+
+**Bot:** **[@papanmaya_bot](https://t.me/papanmaya_bot)** — pair with the live website via **Settings** to get deadline reminders.
+
+---
+
 ## Telegram Bot
 
-> **Live bot:** **[@papanmaya_bot](https://t.me/papanmaya_bot)** — open the link, tap **Start**, then link your Chat ID in **Settings** to enable alerts.
+> **Live bot:** **[@papanmaya_bot](https://t.me/papanmaya_bot)** — open the link, tap **Start**, then link your Chat ID in **Settings** on [https://pesan.mayakarsa.web.id/](https://pesan.mayakarsa.web.id/) to enable alerts.
 
 1. Create your own bot via `@BotFather` → token → set `TELEGRAM_BOT_TOKEN` (skip if using the live bot above).
 2. User links ID: **Settings** → paste `chat_id` (from `@userinfobot` or from the bot after `/start`) → **Save ID**.
@@ -291,6 +302,8 @@ Manual delete: **Task Details → 🗑️ Delete Task** (confirm) → `DELETE /a
 
 ## Deployment
 
+The live instance is hosted at **[https://pesan.mayakarsa.web.id/](https://pesan.mayakarsa.web.id/)**.
+
 ```bash
 # login once
 npx wrangler login
@@ -302,6 +315,7 @@ echo "123456:ABC..." | npx wrangler secret put TELEGRAM_BOT_TOKEN
 # deploy (build + upload)
 pnpm run deploy
 # → https://papanmaya.<subdomain>.workers.dev
+# → or your custom domain, e.g. https://pesan.mayakarsa.web.id/
 ```
 
 ---
