@@ -36,7 +36,7 @@ app.get('/', authMiddleware, async (c) => {
   const DO = c.env.KANBAN_BOARD.get(c.env.KANBAN_BOARD.idFromName('default-board'));
 
   const user = await DO.getUser(username);
-  return c.html(<KanbanUI username={username} telegramId={user?.telegram_id || null} />);
+  return c.html(<KanbanUI username={username} telegramId={user?.telegram_id || null} autoDeleteDays={user?.auto_delete_days ?? null} />);
 });
 
 app.use('/api/tasks/*', authMiddleware);

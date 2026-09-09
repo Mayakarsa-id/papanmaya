@@ -22,4 +22,10 @@ taskRouter.patch('/:id', async (c) => {
   return c.json({ success: true });
 });
 
+taskRouter.delete('/:id', async (c) => {
+  const id = c.req.param('id');
+  await getDO(c).deleteTask(id, c.get('username'));
+  return c.json({ success: true });
+});
+
 export default taskRouter;
