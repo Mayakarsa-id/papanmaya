@@ -310,9 +310,6 @@ pnpm run deploy
 
 - [ ] Task search & filters, due-date sorting
 - [ ] Bulk move / archive
-- [ ] WebSocket live updates
-- [ ] Light theme toggle
-- [ ] Playwright e2e (register → create → drag → delete)
 
 ---
 
