@@ -1,6 +1,6 @@
 import { Layout } from './Layout';
 
-export const KanbanUI = ({ username, telegramId }: { username: string, telegramId: string | null }) => (
+export const KanbanUI = ({ username, telegramId, autoDeleteDays }: { username: string, telegramId: string | null, autoDeleteDays: number | null }) => (
   <Layout title="PAPANMAYA">
     {/* Header */}
     <header class="kanban-header">
@@ -81,6 +81,10 @@ export const KanbanUI = ({ username, telegramId }: { username: string, telegramI
         <button onclick="saveTask()" class="btn-primary" style="flex:1;">Simpan</button>
         <button onclick="document.getElementById('taskModal').close()" class="btn-ghost">Tutup</button>
       </div>
+      <div id="deleteArea" style="display:none; margin-top:12px; padding-top:12px; border-top:1px dashed var(--border);">
+        <button onclick="deleteCurrentTask()" class="btn-danger" style="width:100%; background:var(--todo-soft); color:var(--todo); border-color:var(--todo-border);">🗑️ Hapus Tugas</button>
+        <div style="font-size:0.72rem; color:var(--text-faint); text-align:center; margin-top:6px; font-family:'JetBrains Mono',monospace;">Tindakan tidak dapat dibatalkan</div>
+      </div>
       <div style="font-size:0.74rem; color:var(--text-faint); margin-top:10px; text-align:center; font-family:'JetBrains Mono',monospace;">Tips: Klik kartu untuk edit • Drag untuk pindah status</div>
     </dialog>
 
@@ -90,18 +94,57 @@ export const KanbanUI = ({ username, telegramId }: { username: string, telegramI
         <h3>Pengaturan</h3>
         <button type="button" onclick="document.getElementById('settingsModal').close()" class="dialog-close">✕</button>
       </div>
-      <p style="color:var(--text-muted); font-size:0.88rem; margin:0 0 14px; line-height:1.5;">Hubungkan <strong style="color:var(--text);">Telegram ID</strong> untuk notifikasi H-6 jam deadline & perintah bot <code style="background:var(--surface-raised); border:1px solid var(--border); padding:1px 6px; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:0.78rem;">/info</code> <code style="background:var(--surface-raised); border:1px solid var(--border); padding:1px 6px; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:0.78rem;">/list</code>.</p>
-      <form action="/user/settings/telegram" method="POST" class="form-stack">
+
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        {/* Telegram */}
         <div>
-          <label for="tgId">Telegram Chat ID</label>
-          <input type="text" id="tgId" name="telegram_id" value={telegramId || ''} placeholder="Contoh: 123456789" inputmode="numeric" />
-          <div style="font-size:0.76rem; color:var(--text-faint); margin-top:6px;">Kosongkan jika tidak butuh alarm. Cari ID via <span style="color:var(--cyan);">@userinfobot</span> di Telegram.</div>
+          <p style="color:var(--text-muted); font-size:0.88rem; margin:0 0 10px; line-height:1.5;">Hubungkan <strong style="color:var(--text);">Telegram ID</strong> untuk notifikasi H-6 jam deadline & perintah <code style="background:var(--surface-raised); border:1px solid var(--border); padding:1px 6px; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:0.78rem;">/info</code> <code style="background:var(--surface-raised); border:1px solid var(--border); padding:1px 6px; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:0.78rem;">/list</code>.</p>
+          <form action="/user/settings/telegram" method="POST" class="form-stack">
+            <div>
+              <label for="tgId">Telegram Chat ID</label>
+              <input type="text" id="tgId" name="telegram_id" value={telegramId || ''} placeholder="Contoh: 123456789" inputmode="numeric" />
+              <div style="font-size:0.76rem; color:var(--text-faint); margin-top:6px;">Kosongkan jika tidak butuh alarm. Cari ID via <span style="color:var(--cyan);">@userinfobot</span>.</div>
+            </div>
+            <button type="submit" class="btn-primary" style="background:var(--cyan);">Simpan ID</button>
+          </form>
         </div>
-        <div class="dialog-actions">
-          <button type="submit" class="btn-primary" style="flex:1; background:var(--cyan);">Simpan ID</button>
-          <button type="button" onclick="document.getElementById('settingsModal').close()" class="btn-ghost">Batal</button>
+
+        <div style="height:1px; background:var(--border);"></div>
+
+        {/* Auto-delete */}
+        <div>
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+            <span style="width:28px; height:28px; background:var(--todo-soft); border:1px solid var(--todo-border); border-radius:8px; display:grid; place-items:center; font-size:0.9rem;">🗑️</span>
+            <div>
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:0.92rem; letter-spacing:-0.01em;">Auto-Hapus</div>
+              <div style="font-size:0.76rem; color:var(--text-faint);">Hapus otomatis tugas <strong style="color:var(--done);">DONE</strong></div>
+            </div>
+            {autoDeleteDays ? (
+              <span style="margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:0.68rem; background:var(--done-soft); color:var(--done); border:1px solid var(--done-border); padding:3px 8px; border-radius:999px;">AKTIF • {autoDeleteDays} hari</span>
+            ) : (
+              <span style="margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:0.68rem; background:var(--surface-raised); color:var(--text-faint); border:1px solid var(--border); padding:3px 8px; border-radius:999px;">NONAKTIF</span>
+            )}
+          </div>
+          <form action="/user/settings/auto-delete" method="POST" class="form-stack">
+            <div>
+              <label for="autoDeleteSelect">Hapus otomatis setelah</label>
+              <select id="autoDeleteSelect" name="auto_delete_days" style="width:100%; padding:11px 12px; font-size:0.9rem; font-family:'Inter',sans-serif; background:#0F0F12; border:1.5px solid var(--border); border-radius:10px; color:var(--text);">
+                <option value="" selected={!autoDeleteDays}>Tidak aktif</option>
+                <option value="1" selected={autoDeleteDays === 1}>1 hari — bersih harian</option>
+                <option value="3" selected={autoDeleteDays === 3}>3 hari</option>
+                <option value="7" selected={autoDeleteDays === 7}>7 hari — mingguan</option>
+                <option value="14" selected={autoDeleteDays === 14}>14 hari</option>
+                <option value="30" selected={autoDeleteDays === 30}>30 hari — bulanan</option>
+              </select>
+              <div style="font-size:0.76rem; color:var(--text-faint); margin-top:6px; line-height:1.4;">Tugas yang sudah <em style="color:var(--done); font-style:normal; font-weight:600;">DONE</em> akan dihapus otomatis sesuai jadwal. Timer dihitung dari <em>terakhir update</em> ke DONE.</div>
+            </div>
+            <div class="dialog-actions" style="margin-top:4px;">
+              <button type="submit" class="btn-primary" style="flex:1; background:var(--todo); color:#0A0A0F; border-color:#0A0A0F;">Simpan Aturan</button>
+              <button type="button" onclick="document.getElementById('settingsModal').close()" class="btn-ghost">Tutup</button>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </dialog>
 
     <style dangerouslySetInnerHTML={{ __html: `
@@ -273,7 +316,13 @@ export const KanbanUI = ({ username, telegramId }: { username: string, telegramI
       .dialog-actions button { flex:1; }
       textarea { resize:vertical; min-height:84px; font-family:'Inter',sans-serif; }
       textarea:focus { border-color:var(--violet); box-shadow:0 0 0 3px rgba(167,139,250,0.15); }
-
+      select:focus { border-color:var(--violet); box-shadow:0 0 0 3px rgba(167,139,250,0.15); outline:none; }
+      .btn-danger {
+        font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:0.02em; text-transform:uppercase;
+        border:1.5px solid var(--todo-border); box-shadow:3px 3px 0px #000;
+      }
+      .btn-danger:hover { transform: translate(-1px,-1px); box-shadow:4px 4px 0px #000; filter:brightness(1.05); }
+      .btn-danger:active { transform: translate(1px,1px); box-shadow:1px 1px 0px #000; }
       /* Drag over feedback */
       .col.drag-over { border-color: var(--violet) !important; box-shadow: 0 0 0 2px rgba(167,139,250,0.2), var(--shadow-hard); }
     ` }} />
@@ -319,7 +368,6 @@ export const KanbanUI = ({ username, telegramId }: { username: string, telegramI
         e.preventDefault();
         e.currentTarget.classList.add('drag-over');
       }
-      // remove drag-over on leave
       document.querySelectorAll('.col').forEach(col=>{
         col.addEventListener('dragleave', e=>{
           if(!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
@@ -350,6 +398,7 @@ export const KanbanUI = ({ username, telegramId }: { username: string, telegramI
         };
         document.getElementById('mStart').value = task ? toLocalStr(task.start_date) : '';
         document.getElementById('mDeadline').value = task ? toLocalStr(task.deadline) : '';
+        document.getElementById('deleteArea').style.display = id ? 'block' : 'none';
         modal.showModal();
       }
       async function saveTask() {
@@ -366,7 +415,14 @@ export const KanbanUI = ({ username, telegramId }: { username: string, telegramI
         document.getElementById('taskModal').close();
         load();
       }
-      // close on backdrop click
+      async function deleteCurrentTask(){
+        const id = document.getElementById('taskId').value;
+        if(!id) return;
+        if(!confirm("Hapus tugas ini? Tindakan tidak dapat dibatalkan.")) return;
+        await fetch(\`/api/tasks/\${id}\`, { method: 'DELETE' });
+        document.getElementById('taskModal').close();
+        load();
+      }
       document.querySelectorAll('dialog').forEach(d=>{
         d.addEventListener('click', e=>{
           const rect = d.getBoundingClientRect();
