@@ -2,7 +2,7 @@ import { html } from 'hono/html';
 
 export const Layout = (props: { title: string; children: any }) => html`
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
