@@ -23,6 +23,11 @@ export class KanbanBoard extends DurableObject {
   async getUser(username: string) { return this.db.getUser(username); }
   async createUser(username: string, totpSecret: string) { return this.db.createUser(username, totpSecret); }
   async updateTelegramId(username: string, tgId: string) { return this.db.updateTelegramId(username, tgId); }
+  async updateAutoDelete(username: string, days: number | null) {
+    this.db.updateAutoDelete(username, days);
+    await this.alarmSvc.updateAlarm();
+    return { success: true };
+  }
 
   async getTasks(username: string) { return this.db.getTasks(username); }
 
@@ -34,6 +39,12 @@ export class KanbanBoard extends DurableObject {
 
   async updateTask(id: string, username: string, updates: Partial<Task>) {
     this.db.updateTask(id, username, updates);
+    await this.alarmSvc.updateAlarm();
+    return { success: true };
+  }
+
+  async deleteTask(id: string, username: string) {
+    this.db.deleteTask(id, username);
     await this.alarmSvc.updateAlarm();
     return { success: true };
   }

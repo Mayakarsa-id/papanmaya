@@ -4,7 +4,7 @@ export interface Env {
   JWT_SECRET: string;
 }
 
-export type User = { username: string; totp_secret: string; telegram_id: string | null; };
+export type User = { username: string; totp_secret: string; telegram_id: string | null; auto_delete_days: number | null; };
 export type Task = {
   id: string;
   username: string;
@@ -14,5 +14,6 @@ export type Task = {
   start_date: number | null;
   deadline: number | null;
   created_at: number;
+  updated_at: number;
   notified: number;
 };
