@@ -2,5 +2,23 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "papanmaya",
   "compatibility_date": "2025-08-03",
-  "main": "./src/index.tsx"
+  "main": "./src/index.tsx",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "KANBAN_BOARD",
+        "class_name": "KanbanBoard"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["KanbanBoard"]
+    }
+  ],
+  "vars": {
+    "TELEGRAM_BOT_TOKEN": "TOKEN_BOT_ANDA",
+    "JWT_SECRET": "rahasia-jwt-papanmaya-2024"
+  }
 }
