@@ -2,77 +2,280 @@ import { Layout } from './Layout';
 
 export const KanbanUI = ({ username, telegramId }: { username: string, telegramId: string | null }) => (
   <Layout title="PAPANMAYA">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid #fff; padding-bottom: 20px; margin-bottom: 30px;">
-      <div>
-        <h1 style="margin-bottom: 10px;">PAPANMAYA</h1>
-        <div style="background: #fff; color: #000; padding: 5px 10px; display: inline-block; font-weight: bold;">
-          USER: {username}
+    {/* Header */}
+    <header class="kanban-header">
+      <div class="kanban-brand">
+        <div class="kanban-logo">PM</div>
+        <div class="kanban-brand-text">
+          <div class="kanban-title">PAPANMAYA</div>
+          <div class="kanban-subtitle">Dark board • <span style="color:var(--text);">@{username}</span></div>
+        </div>
+        <div class="kanban-user-chip" title="Username aktif">
+          <span class="kanban-user-dot"></span>
+          {username}
         </div>
       </div>
-      <div style="text-align: right;">
-        <button onclick="document.getElementById('settingsModal').showModal()" style="width: auto; background: #00ffff; color: #000; margin-bottom: 5px;">⚙️ SETTINGS</button>
-        <br/><a href="/auth/logout" style="background: #ff3366; color: #fff; padding: 5px 10px; border: 2px solid #fff;">LOGOUT</a>
+      <div class="kanban-actions">
+        <button onclick="document.getElementById('settingsModal').showModal()" class="btn-violet" style="padding:9px 14px; font-size:0.82rem;">⚙️ Settings</button>
+        <a href="/auth/logout" class="kanban-logout">Logout</a>
       </div>
-    </div>
+    </header>
 
+    {/* Board */}
     <div class="board">
       <div class="col" id="col-todo" ondragover="allowDrop(event)" ondrop="drop(event, 'todo')">
-        <h2 style="background: #ff3366; color: #000; padding: 5px;">TO_DO <button onclick="openModal()" style="float: right; width: auto; padding: 0 10px; margin: 0; background: #fff; color:#000;">+</button></h2>
+        <div class="col-header">
+          <div class="col-title">
+            <span class="col-dot" style="background:var(--todo);"></span>
+            To Do
+            <span class="col-count" id="count-todo">0</span>
+          </div>
+          <button onclick="openModal()" class="col-add" title="Tambah tugas">＋</button>
+        </div>
         <div id="todo-list" class="list-container"></div>
       </div>
       <div class="col" id="col-inprogress" ondragover="allowDrop(event)" ondrop="drop(event, 'in-progress')">
-        <h2 style="background: #ffff00; color: #000; padding: 5px;">IN_PROGRESS</h2>
+        <div class="col-header">
+          <div class="col-title">
+            <span class="col-dot" style="background:var(--progress);"></span>
+            In Progress
+            <span class="col-count" id="count-inprogress">0</span>
+          </div>
+        </div>
         <div id="inprogress-list" class="list-container"></div>
       </div>
       <div class="col" id="col-done" ondragover="allowDrop(event)" ondrop="drop(event, 'done')">
-        <h2 style="background: #00ff66; color: #000; padding: 5px;">DONE</h2>
+        <div class="col-header">
+          <div class="col-title">
+            <span class="col-dot" style="background:var(--done);"></span>
+            Done
+            <span class="col-count" id="count-done">0</span>
+          </div>
+        </div>
         <div id="done-list" class="list-container"></div>
       </div>
     </div>
 
-    <dialog id="taskModal" class="neo-dialog">
-      <h2 id="modalTitle">DETAIL TUGAS</h2>
+    {/* Task Modal */}
+    <dialog id="taskModal" class="kanban-dialog">
+      <div class="dialog-head">
+        <h3 id="modalTitle">Detail Tugas</h3>
+        <button type="button" onclick="document.getElementById('taskModal').close()" class="dialog-close" aria-label="Close">✕</button>
+      </div>
       <input type="hidden" id="taskId" />
-      <label>Judul:</label>
-      <input type="text" id="mTitle" placeholder="Nama Tugas..." />
-      <label>Detail Pekerjaan:</label>
-      <textarea id="mDetail" rows={4} placeholder="Deskripsi lengkap..." style="width: 100%; background: #000; color: #fff; border: 4px solid #fff; padding: 10px; font-family: inherit; margin-bottom: 15px; resize: vertical;"></textarea>
-      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <div style="flex:1"><label>Mulai:</label><input type="datetime-local" id="mStart" style="width:100%; background:#000; color:#fff; border: 4px solid #fff; padding: 10px;" /></div>
-        <div style="flex:1"><label>Deadline:</label><input type="datetime-local" id="mDeadline" style="width:100%; background:#000; color:#fff; border: 4px solid #fff; padding: 10px;" /></div>
+      <div class="form-stack">
+        <div>
+          <label for="mTitle">Judul</label>
+          <input type="text" id="mTitle" placeholder="Contoh: Desain landing page baru" maxlength={80} />
+        </div>
+        <div>
+          <label for="mDetail">Detail Pekerjaan</label>
+          <textarea id="mDetail" rows={4} placeholder="Deskripsi, checklist, link, catatan..."></textarea>
+        </div>
+        <div class="form-grid">
+          <div><label for="mStart">Mulai</label><input type="datetime-local" id="mStart" /></div>
+          <div><label for="mDeadline">Deadline</label><input type="datetime-local" id="mDeadline" /></div>
+        </div>
       </div>
-      <div style="display: flex; gap: 10px;">
-        <button onclick="saveTask()" style="background: #00ff66; color: #000;">SIMPAN</button>
-        <button onclick="document.getElementById('taskModal').close()" style="background: #ff3366;">TUTUP</button>
+      <div class="dialog-actions">
+        <button onclick="saveTask()" class="btn-primary" style="flex:1;">Simpan</button>
+        <button onclick="document.getElementById('taskModal').close()" class="btn-ghost">Tutup</button>
       </div>
+      <div style="font-size:0.74rem; color:var(--text-faint); margin-top:10px; text-align:center; font-family:'JetBrains Mono',monospace;">Tips: Klik kartu untuk edit • Drag untuk pindah status</div>
     </dialog>
 
-    <dialog id="settingsModal" class="neo-dialog">
-      <h2>PENGATURAN</h2>
-      <p>ID Telegram digunakan untuk alarm H-6 deadline & Webhook Bot.</p>
-      <form action="/user/settings/telegram" method="POST">
-        <input type="text" name="telegram_id" value={telegramId || ''} placeholder="Contoh: 123456789" />
-        <p style="font-size: 0.8rem; color: #00ffff;">Kosongkan jika tidak butuh alarm.</p>
-        <div style="display: flex; gap: 10px;">
-          <button type="submit" style="background: #ccff00; color: #000;">SIMPAN ID</button>
-          <button type="button" onclick="document.getElementById('settingsModal').close()" style="background: #fff; color: #000;">BATAL</button>
+    {/* Settings Modal */}
+    <dialog id="settingsModal" class="kanban-dialog">
+      <div class="dialog-head">
+        <h3>Pengaturan</h3>
+        <button type="button" onclick="document.getElementById('settingsModal').close()" class="dialog-close">✕</button>
+      </div>
+      <p style="color:var(--text-muted); font-size:0.88rem; margin:0 0 14px; line-height:1.5;">Hubungkan <strong style="color:var(--text);">Telegram ID</strong> untuk notifikasi H-6 jam deadline & perintah bot <code style="background:var(--surface-raised); border:1px solid var(--border); padding:1px 6px; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:0.78rem;">/info</code> <code style="background:var(--surface-raised); border:1px solid var(--border); padding:1px 6px; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:0.78rem;">/list</code>.</p>
+      <form action="/user/settings/telegram" method="POST" class="form-stack">
+        <div>
+          <label for="tgId">Telegram Chat ID</label>
+          <input type="text" id="tgId" name="telegram_id" value={telegramId || ''} placeholder="Contoh: 123456789" inputmode="numeric" />
+          <div style="font-size:0.76rem; color:var(--text-faint); margin-top:6px;">Kosongkan jika tidak butuh alarm. Cari ID via <span style="color:var(--cyan);">@userinfobot</span> di Telegram.</div>
+        </div>
+        <div class="dialog-actions">
+          <button type="submit" class="btn-primary" style="flex:1; background:var(--cyan);">Simpan ID</button>
+          <button type="button" onclick="document.getElementById('settingsModal').close()" class="btn-ghost">Batal</button>
         </div>
       </form>
     </dialog>
 
     <style dangerouslySetInnerHTML={{ __html: `
-      .neo-dialog { background: #1a1a1a; color: #fff; border: 6px solid #fff; box-shadow: 12px 12px 0px #ff00ff; padding: 30px; width: 100%; max-width: 500px; font-family: inherit; }
-      .neo-dialog::backdrop { background: rgba(0,0,0,0.8); }
-      .list-container { min-height: 300px; padding-bottom: 50px; }
-      .task-card { background: #000; border: 3px solid #fff; padding: 15px; margin-bottom: 15px; cursor: grab; transition: transform 0.1s; }
-      .task-card:active { cursor: grabbing; transform: scale(0.98); }
-      .badge { display: inline-block; padding: 3px 8px; font-size: 0.8rem; font-weight: bold; border: 2px solid #fff; margin-bottom: 10px; text-transform: uppercase; }
-      .badge.todo { background: #ff3366; color: #000; }
-      .badge.in-progress { background: #ffff00; color: #000; }
-      .badge.done { background: #00ff66; color: #000; }
-      .task-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
-      .task-snippet { font-size: 0.9rem; color: #aaa; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-      .task-dates { font-size: 0.75rem; color: #00ffff; border-top: 1px dashed #fff; padding-top: 5px; }
+      .kanban-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 14px 16px;
+        box-shadow: var(--shadow-hard);
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+      .kanban-brand { display:flex; align-items:center; gap:14px; min-width: 240px; }
+      .kanban-logo {
+        width:42px; height:42px;
+        background: var(--lime);
+        border: 1.5px solid #0A0A0F;
+        border-radius: 11px;
+        display:grid; place-items:center;
+        font-family:'JetBrains Mono',monospace; font-weight:700; font-size:0.9rem; color:#0A0A0F;
+        box-shadow: 3px 3px 0px #000;
+        flex-shrink:0;
+      }
+      .kanban-title {
+        font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.08rem; letter-spacing:-0.02em; line-height:1;
+        text-transform: uppercase;
+      }
+      .kanban-subtitle {
+        font-size:0.78rem; color:var(--text-muted); font-family:'Inter',sans-serif; margin-top:2px;
+      }
+      .kanban-user-chip {
+        display:inline-flex; align-items:center; gap:7px;
+        background:#0A0A0F; color:var(--text);
+        border:1px solid var(--border); padding:6px 10px; border-radius:999px;
+        font-family:'JetBrains Mono',monospace; font-size:0.72rem; letter-spacing:0.04em;
+        margin-left: 8px;
+      }
+      .kanban-user-dot { width:7px; height:7px; background:var(--emerald); border-radius:50%; box-shadow:0 0 0 4px rgba(52,211,153,0.18); }
+      .kanban-actions { display:flex; align-items:center; gap:10px; margin-left:auto; }
+      .kanban-logout {
+        display:inline-flex; align-items:center; justify-content:center;
+        padding:9px 14px; border-radius:10px;
+        background: transparent; color: var(--text-muted);
+        border:1.5px solid var(--border); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:0.82rem; letter-spacing:0.02em; text-transform:uppercase;
+        transition: all 0.15s;
+      }
+      .kanban-logout:hover { color:var(--text); border-color:var(--border-strong); background:var(--surface-raised); text-decoration:none; }
+
+      .col-header {
+        display:flex; align-items:center; justify-content:space-between;
+        background: var(--surface-raised);
+        border:1.5px solid var(--border);
+        border-radius: 12px;
+        padding: 8px 10px 8px 12px;
+        margin-bottom: 12px;
+      }
+      #col-todo .col-header { background: var(--todo-soft); border-color: var(--todo-border); }
+      #col-inprogress .col-header { background: var(--progress-soft); border-color: var(--progress-border); }
+      #col-done .col-header { background: var(--done-soft); border-color: var(--done-border); }
+      .col-title {
+        display:flex; align-items:center; gap:8px;
+        font-family:'JetBrains Mono',monospace; font-size:0.74rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+      }
+      #col-todo .col-title { color: var(--todo); }
+      #col-inprogress .col-title { color: var(--progress); }
+      #col-done .col-title { color: var(--done); }
+      .col-dot { width:8px; height:8px; border-radius:50%; display:inline-block; flex-shrink:0; }
+      .col-count {
+        background:#0A0A0F; color:var(--text); border:1px solid var(--border);
+        padding:2px 7px; border-radius:999px; font-size:0.68rem; font-family:'JetBrains Mono',monospace;
+        min-width:22px; text-align:center;
+      }
+      #col-todo .col-count { color: var(--todo); border-color: var(--todo-border); }
+      #col-inprogress .col-count { color: var(--progress); border-color: var(--progress-border); }
+      #col-done .col-count { color: var(--done); border-color: var(--done-border); }
+      .col-add {
+        width:28px; height:28px; padding:0; display:grid; place-items:center;
+        border-radius:8px; font-size:1rem; line-height:1;
+        background: var(--text); color:#0A0A0F; border:1.5px solid #0A0A0F; box-shadow:2px 2px 0px #000;
+      }
+      .col-add:hover { transform: translate(-1px,-1px); box-shadow:3px 3px 0px #000; }
+      .col-add:active { transform: translate(1px,1px); box-shadow:1px 1px 0px #000; }
+
+      .list-container { min-height: 260px; padding-bottom: 8px; display:flex; flex-direction:column; gap:10px; }
+      .list-container:empty::after {
+        content: 'Belum ada tugas — klik ＋ untuk menambah';
+        font-size:0.82rem; color:var(--text-faint); text-align:center;
+        border:1.5px dashed var(--border); border-radius:12px; padding:24px 14px; margin-top:4px;
+        font-family:'JetBrains Mono',monospace;
+      }
+      #inprogress-list:empty::after { content: 'Drag tugas ke sini untuk mulai'; }
+      #done-list:empty::after { content: 'Tugas selesai akan muncul di sini ✓'; }
+
+      .task-card {
+        background: var(--surface-raised);
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 14px 12px;
+        cursor: grab;
+        transition: transform 0.14s, box-shadow 0.14s, border-color 0.14s, background 0.14s;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.28);
+        position: relative;
+      }
+      .task-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--border-strong);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.38);
+        background: var(--surface-hover);
+      }
+      .task-card:active { cursor: grabbing; transform: scale(0.99); }
+      .task-card::after {
+        content:''; position:absolute; inset:0; border-radius:14px; pointer-events:none;
+        border:1px solid rgba(255,255,255,0.03);
+      }
+      .badge {
+        display:inline-flex; align-items:center; gap:5px;
+        padding:3px 8px; font-size:0.62rem; font-weight:700; letter-spacing:0.07em;
+        border-radius:999px; border:1px solid; text-transform:uppercase;
+        font-family:'JetBrains Mono',monospace; margin-bottom:9px;
+      }
+      .badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; opacity:0.9; }
+      .badge.todo { background: var(--todo-soft); color: var(--todo); border-color: var(--todo-border); }
+      .badge.in-progress { background: var(--progress-soft); color: var(--progress); border-color: var(--progress-border); }
+      .badge.done { background: var(--done-soft); color: var(--done); border-color: var(--done-border); }
+      .task-title { font-family:'Space Grotesk',sans-serif; font-size:0.98rem; font-weight:600; letter-spacing:-0.01em; line-height:1.3; margin-bottom:4px; color:var(--text); }
+      .task-snippet { font-size:0.82rem; color:var(--text-muted); line-height:1.5; margin-bottom:10px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:1.2em; }
+      .task-dates {
+        display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+        font-size:0.7rem; font-family:'JetBrains Mono',monospace; color:var(--text-faint);
+        border-top:1px solid var(--border); padding-top:8px;
+      }
+      .task-dates span {
+        display:inline-flex; align-items:center; gap:5px;
+        background:#0A0A0F; border:1px solid var(--border); padding:3px 7px; border-radius:999px;
+      }
+      .task-dates span:first-child { color: var(--cyan); }
+      .task-dates span:last-child { color: var(--amber); }
+
+      .kanban-dialog {
+        background: var(--surface);
+        border:1.5px solid var(--border);
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: var(--shadow-hard-lg), 0 20px 50px rgba(0,0,0,0.5);
+        width: min(520px, calc(100% - 24px));
+        color: var(--text);
+      }
+      .kanban-dialog::backdrop { background: rgba(8,8,10,0.68); backdrop-filter: blur(8px); }
+      .dialog-head {
+        display:flex; align-items:center; justify-content:space-between; gap:12px;
+        margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border);
+      }
+      .dialog-head h3 {
+        font-family:'Space Grotesk',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:-0.02em; margin:0;
+      }
+      .dialog-close {
+        width:32px; height:32px; padding:0; display:grid; place-items:center;
+        border-radius:10px; background:var(--surface-raised); border:1.5px solid var(--border); box-shadow:none; font-size:0.9rem;
+      }
+      .dialog-close:hover { background:var(--surface-hover); border-color:var(--border-strong); transform:none; box-shadow:none; }
+      .form-stack { display:flex; flex-direction:column; gap:12px; }
+      .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+      @media (max-width:560px){ .form-grid{ grid-template-columns:1fr; } .kanban-header{ padding:12px; } .kanban-brand{ gap:10px; } }
+      .dialog-actions { display:flex; gap:10px; margin-top:14px; }
+      .dialog-actions button { flex:1; }
+      textarea { resize:vertical; min-height:84px; font-family:'Inter',sans-serif; }
+      textarea:focus { border-color:var(--violet); box-shadow:0 0 0 3px rgba(167,139,250,0.15); }
+
+      /* Drag over feedback */
+      .col.drag-over { border-color: var(--violet) !important; box-shadow: 0 0 0 2px rgba(167,139,250,0.2), var(--shadow-hard); }
     ` }} />
 
     <script dangerouslySetInnerHTML={{ __html: `
@@ -88,28 +291,47 @@ export const KanbanUI = ({ username, telegramId }: { username: string, telegramI
       }
       function render() {
         ['todo', 'inprogress', 'done'].forEach(id => document.getElementById(id+'-list').innerHTML = '');
+        const counts = { todo:0, 'in-progress':0, done:0 };
         globalTasks.forEach(t => {
+          counts[t.status] = (counts[t.status]||0)+1;
           const div = document.createElement('div');
           div.className = 'task-card';
           div.draggable = true;
           div.ondragstart = (e) => e.dataTransfer.setData('id', t.id);
           div.onclick = () => openModal(t.id);
+          const detail = t.detail ? (t.detail.length > 90 ? t.detail.slice(0,90)+'…' : t.detail) : 'Tanpa detail — klik untuk edit.';
           div.innerHTML = \`
             <div class="badge \${t.status}">\${t.status}</div>
-            <div class="task-title">\${t.title}</div>
-            <div class="task-snippet">\${t.detail || '...'}</div>
-            <div class="task-dates">S: \${formatDT(t.start_date)}<br/>D: \${formatDT(t.deadline)}</div>
+            <div class="task-title">\${escapeHtml(t.title)}</div>
+            <div class="task-snippet">\${escapeHtml(detail)}</div>
+            <div class="task-dates"><span>● S: \${formatDT(t.start_date)}</span><span>◐ D: \${formatDT(t.deadline)}</span></div>
           \`;
-          document.getElementById(t.status.replace('-', '')+'-list').appendChild(div);
+          const target = t.status.replace('-', '');
+          const list = document.getElementById(target+'-list');
+          if(list) list.appendChild(div);
         });
+        document.getElementById('count-todo').textContent = counts['todo'];
+        document.getElementById('count-inprogress').textContent = counts['in-progress'];
+        document.getElementById('count-done').textContent = counts['done'];
       }
-      function allowDrop(e) { e.preventDefault(); }
+      function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+      function allowDrop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add('drag-over');
+      }
+      // remove drag-over on leave
+      document.querySelectorAll('.col').forEach(col=>{
+        col.addEventListener('dragleave', e=>{
+          if(!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+        });
+      });
       async function drop(e, newStatus) {
         e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
         const id = e.dataTransfer.getData('id');
         if(!id) return;
         const task = globalTasks.find(t => t.id === id);
-        if(task.status === newStatus) return;
+        if(!task || task.status === newStatus) return;
         task.status = newStatus;
         render();
         await fetch(\`/api/tasks/\${id}\`, { method: 'PATCH', body: JSON.stringify({ status: newStatus }), headers: {'Content-Type': 'application/json'} });
@@ -117,6 +339,7 @@ export const KanbanUI = ({ username, telegramId }: { username: string, telegramI
       function openModal(id = null) {
         const modal = document.getElementById('taskModal');
         const task = id ? globalTasks.find(t => t.id === id) : null;
+        document.getElementById('modalTitle').textContent = task ? 'Edit Tugas' : 'Tugas Baru';
         document.getElementById('taskId').value = id || '';
         document.getElementById('mTitle').value = task ? task.title : '';
         document.getElementById('mDetail').value = task ? task.detail : '';
@@ -132,8 +355,8 @@ export const KanbanUI = ({ username, telegramId }: { username: string, telegramI
       async function saveTask() {
         const id = document.getElementById('taskId').value;
         const payload = {
-          title: document.getElementById('mTitle').value,
-          detail: document.getElementById('mDetail').value,
+          title: document.getElementById('mTitle').value.trim(),
+          detail: document.getElementById('mDetail').value.trim(),
           start_date: document.getElementById('mStart').value ? new Date(document.getElementById('mStart').value).getTime() : null,
           deadline: document.getElementById('mDeadline').value ? new Date(document.getElementById('mDeadline').value).getTime() : null,
         };
@@ -143,6 +366,13 @@ export const KanbanUI = ({ username, telegramId }: { username: string, telegramI
         document.getElementById('taskModal').close();
         load();
       }
+      // close on backdrop click
+      document.querySelectorAll('dialog').forEach(d=>{
+        d.addEventListener('click', e=>{
+          const rect = d.getBoundingClientRect();
+          if(e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) d.close();
+        });
+      });
       load();
     ` }} />
   </Layout>
