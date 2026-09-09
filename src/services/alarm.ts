@@ -44,13 +44,13 @@ export class AlarmService {
 
   async processAlarm() {
     const now = Date.now();
-    const limit = now + (6 * 60 * 60 * 1000); // Filter: Deadline < 6 jam dari sekarang
+    const limit = now + (6 * 60 * 60 * 1000); // Filter: Deadline < 6 hours from now
 
     const overdue = this.db.getOverdueTasks(limit);
 
     for (const t of overdue as any[]) {
-      const msg = `🚨 **DEADLINE PENGINGAT ( < 6 JAM )** 🚨\n\n` +
-                  `📌 *${t.title}*\nStatus: ${t.status}\nDeadline: ${new Date(t.deadline).toLocaleString('id-ID')}`;
+      const msg = `🚨 **DEADLINE REMINDER (< 6 HOURS)** 🚨\n\n` +
+                  `📌 *${t.title}*\nStatus: ${t.status}\nDeadline: ${new Date(t.deadline).toLocaleString('en-US')}`;
       await this.tg.sendMessage(t.telegram_id, msg);
       this.db.markTaskNotified(t.id);
     }

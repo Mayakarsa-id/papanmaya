@@ -8,13 +8,13 @@ import userRouter from './routes/user';
 import { webhookRouter } from './routes/webhook';
 import { KanbanUI } from './views/KanbanUI';
 
-// Ekspos Durable Object agar dikenali Wrangler
+// Expose Durable Object for Wrangler
 export { KanbanBoard } from './durable-objects/KanbanBoard';
 
 const app = new Hono<{ Bindings: Env, Variables: { username: string } }>();
 
 // --- UNPROTECTED ROUTES ---
-app.route('/webhook', webhookRouter); // Webhook Telegram harus publik
+app.route('/webhook', webhookRouter); // Telegram webhook must be public
 app.route('/auth', authRouter);
 
 // --- JWT AUTH MIDDLEWARE ---

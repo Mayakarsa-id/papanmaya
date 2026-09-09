@@ -35,7 +35,7 @@ authRouter.post('/register/verify', async (c) => {
     await getDO(c).createUser(decoded.username, decoded.secret);
 
     const authToken = await sign({ username: decoded.username }, c.env.JWT_SECRET);
-    // DURASI 24 JAM
+    // 24 HOURS
     setCookie(c, 'auth', authToken, { httpOnly: true, secure: true, maxAge: 86400, path: '/' });
     return c.redirect('/');
   } catch (e) {
@@ -52,7 +52,7 @@ authRouter.post('/login', async (c) => {
   if (!isValid) return c.text('Invalid TOTP Code', 401);
 
   const authToken = await sign({ username: user.username }, c.env.JWT_SECRET);
-  // DURASI 24 JAM
+  // 24 HOURS
   setCookie(c, 'auth', authToken, { httpOnly: true, secure: true, maxAge: 86400, path: '/' });
   return c.redirect('/');
 });

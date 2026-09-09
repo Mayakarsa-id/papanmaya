@@ -18,7 +18,7 @@ export class KanbanBoard extends DurableObject {
     this.db.initSchema();
   }
 
-  // --- API RPC Methods (Dipanggil oleh Routers) ---
+  // --- API RPC Methods (Called by Routers) ---
 
   async getUser(username: string) { return this.db.getUser(username); }
   async createUser(username: string, totpSecret: string) { return this.db.createUser(username, totpSecret); }

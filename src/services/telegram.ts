@@ -18,28 +18,28 @@ export class TelegramService {
     const text = update.message.text.trim();
 
     const user = db.getUserByTelegramId(chatId);
-    if (!user) return this.sendMessage(chatId, "❌ Telegram ID Anda belum terdaftar di PapanMaya.");
+    if (!user) return this.sendMessage(chatId, "❌ Your Telegram ID is not linked to PapanMaya.");
 
     const username = user.username;
 
     if (text === '/info') {
       const stats = db.getTaskStats(username);
-      let msg = `📊 **Statistik PapanMaya @${username}**\n\n`;
-      stats.forEach((s: any) => msg += `▫️ ${s.status.toUpperCase()}: ${s.count} tugas\n`);
+      let msg = `📊 **PapanMaya Stats @${username}**\n\n`;
+      stats.forEach((s: any) => msg += `▫️ ${s.status.toUpperCase()}: ${s.count} tasks\n`);
       return this.sendMessage(chatId, msg);
     }
 
     if (text.startsWith('/list')) {
       const status = text.split(' ')[1];
-      if (!status) return this.sendMessage(chatId, "⚠️ Gunakan: `/list todo`, `/list in-progress`, atau `/list done`");
+      if (!status) return this.sendMessage(chatId, "⚠️ Usage: \`/list todo\`, \`/list in-progress\`, or \`/list done\`");
 
       const tasks = db.getTasksByStatus(username, status);
-      let msg = `📋 **Daftar Tugas [${status.toUpperCase()}]**\n\n`;
-      if (tasks.length === 0) msg += "Tidak ada tugas.";
+      let msg = `📋 **Tasks [${status.toUpperCase()}]**\n\n`;
+      if (tasks.length === 0) msg += "No tasks.";
       tasks.forEach((t: any, i) => msg += `${i+1}. ${t.title}\n`);
       return this.sendMessage(chatId, msg);
     }
 
-    return this.sendMessage(chatId, "🤖 **Command Tersedia:**\n/info - Statistik\n/list [status] - Daftar tugas");
+    return this.sendMessage(chatId, "🤖 **Available Commands:**\n/info - Stats\n/list [status] - List tasks");
   }
 }
