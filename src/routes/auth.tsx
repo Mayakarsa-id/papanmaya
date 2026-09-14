@@ -35,8 +35,8 @@ authRouter.post('/register/verify', async (c) => {
     await getDO(c).createUser(decoded.username, decoded.secret);
 
     const authToken = await sign({ username: decoded.username }, c.env.JWT_SECRET);
-    // 24 HOURS
-    setCookie(c, 'auth', authToken, { httpOnly: true, secure: true, maxAge: 86400, path: '/' });
+    // 7 DAYS (24*7 hours)
+    setCookie(c, 'auth', authToken, { httpOnly: true, secure: true, maxAge: 604800, path: '/' });
     return c.redirect('/');
   } catch (e) {
     return c.text('Session expired or invalid', 400);
@@ -52,8 +52,8 @@ authRouter.post('/login', async (c) => {
   if (!isValid) return c.text('Invalid TOTP Code', 401);
 
   const authToken = await sign({ username: user.username }, c.env.JWT_SECRET);
-  // 24 HOURS
-  setCookie(c, 'auth', authToken, { httpOnly: true, secure: true, maxAge: 86400, path: '/' });
+  // 7 DAYS (24*7 hours)
+  setCookie(c, 'auth', authToken, { httpOnly: true, secure: true, maxAge: 604800, path: '/' });
   return c.redirect('/');
 });
 
