@@ -12,6 +12,28 @@ export class TelegramService {
     });
   }
 
+  private static statusEmoji(status: string): string {
+    switch (status) {
+      case 'todo': return '📝';
+      case 'in-progress': return '⏳';
+      case 'done': return '✅';
+      default: return '🔹';
+    }
+  }
+
+  private static escapeMd(text: string): string {
+    return (text || '').replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\\$1');
+  }
+
+  async notifyStatusChange(chatId: string, title: string, from: string, to: string) {
+    if (!chatId || from === to) return;
+    const msg =
+      `🔄 *Task Status Changed*\n\n` +
+      `📌 ${TelegramService.escapeMd(title)}\n` +
+      `${TelegramService.statusEmoji(from)} ${from} → ${TelegramService.statusEmoji(to)} ${to}`;
+    await this.sendMessage(chatId, msg);
+  }
+
   async handleWebhook(update: any, db: DatabaseService) {
     if (!update.message || !update.message.text) return;
     const chatId = update.message.chat.id.toString();

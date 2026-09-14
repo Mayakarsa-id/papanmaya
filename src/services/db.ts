@@ -65,6 +65,13 @@ export class DatabaseService {
   deleteTask(id: string, username: string) {
     this.storage.sql.exec(`DELETE FROM tasks WHERE id = ? AND username = ?`, id, username);
   }
+  getTaskById(id: string, username: string): Task | null {
+    try {
+      return this.storage.sql.exec(`SELECT * FROM tasks WHERE id = ? AND username = ?`, id, username).one() as Task;
+    } catch {
+      return null;
+    }
+  }
   getTasks(username: string): Task[] {
     return this.storage.sql.exec(`SELECT * FROM tasks WHERE username = ? ORDER BY deadline ASC, created_at DESC`, username).toArray() as Task[];
   }

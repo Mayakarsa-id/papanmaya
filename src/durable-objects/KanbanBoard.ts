@@ -38,8 +38,22 @@ export class KanbanBoard extends DurableObject {
   }
 
   async updateTask(id: string, username: string, updates: Partial<Task>) {
+    // Snapshot sebelum update agar bisa deteksi perubahan status yang sebenarnya
+    const before = updates.status ? this.db.getTaskById(id, username) : null;
     this.db.updateTask(id, username, updates);
     await this.alarmSvc.updateAlarm();
+    // Setiap perubahan status → notifikasi Telegram (bila user menautkan ID)
+    if (updates.status && before && before.status !== updates.status) {
+      try {
+        const user = this.db.getUser(username);
+        if (user?.telegram_id) {
+          await this.tg.notifyStatusChange(user.telegram_id, before.title, before.status, updates.status);
+        }
+      } catch (e) {
+        // Notifikasi tidak boleh menggagalkan update status
+        console.error('[Notify] status change failed', e);
+      }
+    }
     return { success: true };
   }
 
