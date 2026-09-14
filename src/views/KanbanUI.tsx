@@ -72,6 +72,14 @@ export const KanbanUI = ({ username, telegramId, autoDeleteDays }: { username: s
           <label for="mDetail">Details</label>
           <textarea id="mDetail" rows={4} placeholder="Description, checklist, links, notes..."></textarea>
         </div>
+        <div>
+          <label>Status</label>
+          <div class="status-seg" role="radiogroup" aria-label="Task status">
+            <label class="seg seg-todo"><input type="radio" name="mStatus" value="todo" checked={true} /><span>📝 To Do</span></label>
+            <label class="seg seg-progress"><input type="radio" name="mStatus" value="in-progress" /><span>⏳ Doing</span></label>
+            <label class="seg seg-done"><input type="radio" name="mStatus" value="done" /><span>✅ Done</span></label>
+          </div>
+        </div>
         <div class="form-grid">
           <div class="date-field"><label for="mStart">Start</label><input type="datetime-local" id="mStart" onclick="try{this.showPicker&&this.showPicker()}catch(e){}" /></div>
           <div class="date-field"><label for="mDeadline">Deadline</label><input type="datetime-local" id="mDeadline" onclick="try{this.showPicker&&this.showPicker()}catch(e){}" /></div>
@@ -85,7 +93,7 @@ export const KanbanUI = ({ username, telegramId, autoDeleteDays }: { username: s
         <button onclick="deleteCurrentTask()" class="btn-danger" style="width:100%; background:var(--todo-soft); color:var(--todo); border-color:var(--todo-border);">🗑️ Delete Task</button>
         <div style="font-size:0.72rem; color:var(--text-faint); text-align:center; margin-top:6px; font-family:'JetBrains Mono',monospace;">This action cannot be undone</div>
       </div>
-      <div style="font-size:0.74rem; color:var(--text-faint); margin-top:10px; text-align:center; font-family:'JetBrains Mono',monospace;">Tip: Click card to edit • Drag to change status</div>
+      <div style="font-size:0.74rem; color:var(--text-faint); margin-top:10px; text-align:center; font-family:'JetBrains Mono',monospace;">Tip: Click card to edit • Drag or use Status to move</div>
     </dialog>
 
     {/* Settings Modal */}
@@ -328,6 +336,23 @@ export const KanbanUI = ({ username, telegramId, autoDeleteDays }: { username: s
       .date-field { position: relative; }
       .date-field input[type="datetime-local"] { cursor: pointer; color-scheme: dark; }
       .date-field input[type="datetime-local"]::-webkit-calendar-picker-indicator { cursor: pointer; }
+      /* Status segmented picker — tap friendly, no drag needed (mobile) */
+      .status-seg { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+      .status-seg .seg { margin:0; cursor:pointer; }
+      .status-seg .seg input { position:absolute; opacity:0; pointer-events:none; }
+      .status-seg .seg span {
+        display:flex; align-items:center; justify-content:center; gap:6px;
+        padding:12px 6px; border-radius:10px;
+        background:#0F0F12; border:1.5px solid var(--border); color:var(--text-muted);
+        font-family:'JetBrains Mono',monospace; font-size:0.72rem; font-weight:700;
+        letter-spacing:0.04em; text-transform:uppercase; text-align:center;
+        transition: all 0.15s; min-height:48px;
+      }
+      .status-seg .seg input:checked + span { color:var(--text); border-color:var(--border-strong); background:var(--surface-raised); }
+      .status-seg .seg-todo input:checked + span { background:var(--todo-soft); border-color:var(--todo); color:var(--todo); }
+      .status-seg .seg-progress input:checked + span { background:var(--progress-soft); border-color:var(--progress); color:var(--progress); }
+      .status-seg .seg-done input:checked + span { background:var(--done-soft); border-color:var(--done); color:var(--done); }
+      .status-seg .seg span:active { transform:scale(0.97); }
     ` }} />
 
     <script dangerouslySetInnerHTML={{ __html: `
@@ -401,14 +426,17 @@ export const KanbanUI = ({ username, telegramId, autoDeleteDays }: { username: s
         };
         document.getElementById('mStart').value = task ? toLocalStr(task.start_date) : '';
         document.getElementById('mDeadline').value = task ? toLocalStr(task.deadline) : '';
+        document.querySelectorAll('input[name="mStatus"]').forEach(r => { r.checked = task ? r.value === task.status : r.value === 'todo'; });
         document.getElementById('deleteArea').style.display = id ? 'block' : 'none';
         modal.showModal();
       }
       async function saveTask() {
         const id = document.getElementById('taskId').value;
+        const picked = document.querySelector('input[name="mStatus"]:checked');
         const payload = {
           title: document.getElementById('mTitle').value.trim(),
           detail: document.getElementById('mDetail').value.trim(),
+          status: picked ? picked.value : 'todo',
           start_date: document.getElementById('mStart').value ? new Date(document.getElementById('mStart').value).getTime() : null,
           deadline: document.getElementById('mDeadline').value ? new Date(document.getElementById('mDeadline').value).getTime() : null,
         };

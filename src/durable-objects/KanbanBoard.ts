@@ -32,22 +32,23 @@ export class KanbanBoard extends DurableObject {
   async getTasks(username: string) { return this.db.getTasks(username); }
 
   async addTask(username: string, task: Partial<Task>) {
-    const id = this.db.addTask(username, task);
+    const { id, status } = this.db.addTask(username, task);
     await this.alarmSvc.updateAlarm();
-    return { id, status: 'todo' };
+    return { id, status };
   }
 
   async updateTask(id: string, username: string, updates: Partial<Task>) {
     // Snapshot sebelum update agar bisa deteksi perubahan status yang sebenarnya
-    const before = updates.status ? this.db.getTaskById(id, username) : null;
+    const status = DatabaseService.normalizeStatus(updates.status);
+    const before = status ? this.db.getTaskById(id, username) : null;
     this.db.updateTask(id, username, updates);
     await this.alarmSvc.updateAlarm();
     // Setiap perubahan status → notifikasi Telegram (bila user menautkan ID)
-    if (updates.status && before && before.status !== updates.status) {
+    if (status && before && before.status !== status) {
       try {
         const user = this.db.getUser(username);
         if (user?.telegram_id) {
-          await this.tg.notifyStatusChange(user.telegram_id, before.title, before.status, updates.status);
+          await this.tg.notifyStatusChange(user.telegram_id, before.title, before.status, status);
         }
       } catch (e) {
         // Notifikasi tidak boleh menggagalkan update status

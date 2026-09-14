@@ -43,24 +43,34 @@ export class DatabaseService {
     }
   }
 
+  static readonly STATUSES = ['todo', 'in-progress', 'done'];
+  static normalizeStatus(s: unknown): string | null {
+    return typeof s === 'string' && (DatabaseService.STATUSES as string[]).includes(s) ? s : null;
+  }
+
   // Task Queries
   addTask(username: string, task: Partial<Task>) {
     const id = crypto.randomUUID();
     const now = Date.now();
+    const status = DatabaseService.normalizeStatus(task.status) || 'todo';
     this.storage.sql.exec(
-      `INSERT INTO tasks (id, username, title, detail, status, start_date, deadline, created_at, updated_at) VALUES (?, ?, ?, ?, 'todo', ?, ?, ?, ?)`,
-      id, username, task.title, task.detail || '', task.start_date || null, task.deadline || null, now, now
+      `INSERT INTO tasks (id, username, title, detail, status, start_date, deadline, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      id, username, task.title, task.detail || '', status, task.start_date || null, task.deadline || null, now, now
     );
-    return id;
+    return { id, status };
   }
   updateTask(id: string, username: string, updates: Partial<Task>) {
     const now = Date.now();
-    if (updates.status) {
-      this.storage.sql.exec(`UPDATE tasks SET status = ?, updated_at = ? WHERE id = ? AND username = ?`, updates.status, now, id, username);
-    } else {
-      this.storage.sql.exec(`UPDATE tasks SET title = ?, detail = ?, start_date = ?, deadline = ?, updated_at = ? WHERE id = ? AND username = ?`,
-        updates.title, updates.detail, updates.start_date, updates.deadline, now, id, username);
-    }
+    const sets: string[] = ['updated_at = ?'];
+    const params: any[] = [now];
+    const status = DatabaseService.normalizeStatus(updates.status);
+    if (status) { sets.push('status = ?'); params.push(status); }
+    if (updates.title !== undefined) { sets.push('title = ?'); params.push(updates.title); }
+    if (updates.detail !== undefined) { sets.push('detail = ?'); params.push(updates.detail); }
+    if (updates.start_date !== undefined) { sets.push('start_date = ?'); params.push(updates.start_date); }
+    if (updates.deadline !== undefined) { sets.push('deadline = ?'); params.push(updates.deadline); }
+    params.push(id, username);
+    this.storage.sql.exec(`UPDATE tasks SET ${sets.join(', ')} WHERE id = ? AND username = ?`, ...params);
   }
   deleteTask(id: string, username: string) {
     this.storage.sql.exec(`DELETE FROM tasks WHERE id = ? AND username = ?`, id, username);

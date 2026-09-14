@@ -11,6 +11,9 @@ taskRouter.get('/', async (c) => {
 
 taskRouter.post('/', async (c) => {
   const body = await c.req.json();
+  if (body.status !== undefined && !['todo', 'in-progress', 'done'].includes(body.status)) {
+    return c.json({ error: 'Invalid status' }, 400);
+  }
   const task = await getDO(c).addTask(c.get('username'), body);
   return c.json(task, 201);
 });
@@ -18,6 +21,9 @@ taskRouter.post('/', async (c) => {
 taskRouter.patch('/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
+  if (body.status !== undefined && !['todo', 'in-progress', 'done'].includes(body.status)) {
+    return c.json({ error: 'Invalid status' }, 400);
+  }
   await getDO(c).updateTask(id, c.get('username'), body);
   return c.json({ success: true });
 });
