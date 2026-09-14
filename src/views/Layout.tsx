@@ -136,6 +136,18 @@ export const Layout = (props: { title: string; children: any }) => html`
       transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
       outline: none;
     }
+    input[type="datetime-local"] { cursor: pointer; color-scheme: dark; }
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.85;
+      filter: invert(0.85);
+      padding: 4px;
+      margin-left: 8px;
+      border-radius: 6px;
+      transition: opacity 0.15s, background 0.15s;
+    }
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover { opacity: 1; background: var(--surface-raised); }
+    input[type="datetime-local"]::-webkit-datetime-edit { cursor: pointer; }
     input::placeholder, textarea::placeholder { color: var(--text-faint); }
     input:focus, textarea:focus {
       border-color: var(--violet);

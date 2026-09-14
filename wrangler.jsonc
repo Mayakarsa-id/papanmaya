@@ -16,9 +16,5 @@
       "tag": "v1",
       "new_sqlite_classes": ["KanbanBoard"]
     }
-  ],
-  "vars": {
-    "TELEGRAM_BOT_TOKEN": "TOKEN_BOT_ANDA",
-    "JWT_SECRET": "rahasia-jwt-papanmaya-2024"
-  }
+  ]
 }

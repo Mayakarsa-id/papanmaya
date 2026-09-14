@@ -73,8 +73,8 @@ export const KanbanUI = ({ username, telegramId, autoDeleteDays }: { username: s
           <textarea id="mDetail" rows={4} placeholder="Description, checklist, links, notes..."></textarea>
         </div>
         <div class="form-grid">
-          <div><label for="mStart">Start</label><input type="datetime-local" id="mStart" /></div>
-          <div><label for="mDeadline">Deadline</label><input type="datetime-local" id="mDeadline" /></div>
+          <div class="date-field"><label for="mStart">Start</label><input type="datetime-local" id="mStart" onclick="try{this.showPicker&&this.showPicker()}catch(e){}" /></div>
+          <div class="date-field"><label for="mDeadline">Deadline</label><input type="datetime-local" id="mDeadline" onclick="try{this.showPicker&&this.showPicker()}catch(e){}" /></div>
         </div>
       </div>
       <div class="dialog-actions">
@@ -325,6 +325,9 @@ export const KanbanUI = ({ username, telegramId, autoDeleteDays }: { username: s
       .btn-danger:active { transform: translate(1px,1px); box-shadow:1px 1px 0px #000; }
       /* Drag over feedback */
       .col.drag-over { border-color: var(--violet) !important; box-shadow: 0 0 0 2px rgba(167,139,250,0.2), var(--shadow-hard); }
+      .date-field { position: relative; }
+      .date-field input[type="datetime-local"] { cursor: pointer; color-scheme: dark; }
+      .date-field input[type="datetime-local"]::-webkit-calendar-picker-indicator { cursor: pointer; }
     ` }} />
 
     <script dangerouslySetInnerHTML={{ __html: `
@@ -428,6 +431,12 @@ export const KanbanUI = ({ username, telegramId, autoDeleteDays }: { username: s
           const rect = d.getBoundingClientRect();
           if(e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) d.close();
         });
+      });
+      // Klik di mana saja pada input tanggal → buka native picker (tidak hanya ikon/keyboard).
+      // didaftarkan sekali via delegasi agar tetap aktif setiap modal dibuka.
+      document.addEventListener('click', function(e){
+        const t = e.target && e.target.closest ? e.target.closest('input[type="datetime-local"]') : null;
+        if(t && t.showPicker) { try { t.showPicker(); } catch(err) {} }
       });
       load();
     ` }} />
